@@ -1,0 +1,103 @@
+<Window x:Class="MixerPad.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MixerPad"
+        mc:Ignorable="d"
+        Title="MixerPad" Height="720" Width="1100">
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Margin="8" VerticalAlignment="Top">
+            <ComboBox Width="120" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}" />
+            <TextBox Width="80" Text="{Binding BaudRate}" />
+            <CheckBox Content="Invert buttons" IsChecked="{Binding InvertButtons}" VerticalAlignment="Center" />
+            <Button Content="Connect" Command="{Binding ConnectCommand}" />
+            <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
+            <Button Content="Refresh sessions" Command="{Binding RefreshSessionsCommand}" />
+            <Button Content="Export config" Command="{Binding ExportConfigCommand}" />
+            <Button Content="Import config" Command="{Binding ImportConfigCommand}" />
+            <TextBlock Text="{Binding Connected, StringFormat=Connected: {0}}" Margin="12,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <TabControl Grid.Row="1" Margin="8">
+            <TabItem Header="Mixer">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Sliders}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource AccentBrush}" BorderThickness="1" Margin="4" Padding="8">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontSize="16" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <ComboBox Width="140" ItemsSource="{Binding DataContext.SliderTargets, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding TargetType}" />
+                                                <ComboBox Width="160" ItemsSource="{Binding TargetOptions}" SelectedItem="{Binding SelectedTarget}" />
+                                                <CheckBox Content="Invert" IsChecked="{Binding Invert}" />
+                                                <TextBlock Text="{Binding VolumePercent, StringFormat={}{0:F0}%}" Margin="6,0" />
+                                            </StackPanel>
+                                            <Slider Minimum="0" Maximum="4095" Value="{Binding RawValue}" IsEnabled="False" />
+                                            <TextBlock Text="Smoothing (ms)" FontSize="12" Foreground="{StaticResource MutedTextBrush}" />
+                                            <TextBox Width="80" Text="{Binding SmoothingMs}" />
+                                            <TextBlock Text="Threshold" FontSize="12" Foreground="{StaticResource MutedTextBrush}" />
+                                            <TextBox Width="80" Text="{Binding Threshold}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Buttons}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource AccentBrush}" BorderThickness="1" Margin="4" Padding="6">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Mapping.Name}" FontSize="14" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <ComboBox Width="170" ItemsSource="{Binding DataContext.ActionTypes, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding Mapping.ActionType}" />
+                                                <TextBox Width="180" Text="{Binding Mapping.Payload}" />
+                                            </StackPanel>
+                                            <TextBox Text="{Binding Mapping.Arguments}" />
+                                            <CheckBox Content="Run as admin" IsChecked="{Binding Mapping.RunAsAdmin}" />
+                                            <TextBlock Text="Mode" />
+                                            <ComboBox ItemsSource="{Binding DataContext.ButtonModes, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding Mapping.Mode}" />
+                                            <TextBlock Text="Repeat interval (ms)" />
+                                            <TextBox Text="{Binding Mapping.RepeatIntervalMs}" />
+                                            <TextBlock Text="State: ">
+                                                <Run Text="{Binding IsPressed}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Diagnose">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Raw line:" Margin="4" />
+                    <TextBox Grid.Row="1" Text="{Binding RawLine}" IsReadOnly="True" Margin="4" />
+                    <ListBox Grid.Row="2" ItemsSource="{Binding Logs}" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
